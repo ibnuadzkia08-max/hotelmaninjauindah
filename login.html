@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hotel Maninjau Indah</title>
+    <style>
+        :root { color-scheme: dark; font-family: Arial, sans-serif; background: #020617; color: #f8fafc; }
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 20px; }
+        main { width: min(100%, 390px); padding: 28px; border: 1px solid #1e293b; border-radius: 20px; background: #0f172a; box-shadow: 0 24px 70px #0008; }
+        .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .brand img { width: 48px; height: 48px; object-fit: contain; border-radius: 12px; background: #0b3c49; }
+        h1 { margin: 0; font-size: 19px; }
+        .subtitle { margin: 5px 0 0; color: #94a3b8; font-size: 12px; }
+        label { display: block; margin: 16px 0 6px; color: #cbd5e1; font-size: 12px; font-weight: 700; }
+        input { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 10px; outline: none; background: #020617; color: #f8fafc; }
+        input:focus { border-color: #f59e0b; }
+        button { width: 100%; margin-top: 20px; padding: 12px; border: 0; border-radius: 10px; background: #f59e0b; color: #020617; font-weight: 800; cursor: pointer; }
+        button:disabled { opacity: .6; cursor: wait; }
+        #error { min-height: 18px; margin: 12px 0 0; color: #fda4af; font-size: 12px; }
+        .roles { margin: 18px 0 0; color: #64748b; font-size: 11px; line-height: 1.5; text-align: center; }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="brand">
+            <img src="/logo" alt="Logo Hotel Maninjau Indah">
+            <div>
+                <h1>Hotel Maninjau Indah</h1>
+                <p class="subtitle">Masuk ke sistem manajemen hotel</p>
+            </div>
+        </div>
+        <form id="login-form">
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" required maxlength="80">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <button id="submit" type="submit">Masuk</button>
+            <p id="error" role="alert"></p>
+        </form>
+        <p class="roles">Akun Owner, Manager, dan IT Support memiliki akses pengaturan. Akun Staf/Resepsionis hanya memiliki akses operasional.</p>
+    </main>
+    <script>
+        const form = document.getElementById('login-form');
+        const button = document.getElementById('submit');
+        const errorMessage = document.getElementById('error');
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            button.disabled = true;
+            errorMessage.textContent = '';
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(new FormData(form))
+                });
+                if (!response.ok) {
+                    const result = await response.json();
+                    errorMessage.textContent = result.error || 'Login gagal.';
+                    return;
+                }
+                window.location.replace('/');
+            } catch (error) {
+                errorMessage.textContent = 'Server tidak dapat dijangkau. Periksa server dan coba lagi.';
+                console.error('Login request failed:', error);
+            } finally {
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
